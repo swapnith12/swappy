@@ -1,5 +1,6 @@
 'use client'
-import { useState , useRef , useEffect } from "react";
+import React, { useState , useRef , useEffect } from "react";
+import { Button } from "@/components/ui/button";
 export default function board(){
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [isDrawing, setIsDrawing] = useState(false);
@@ -64,23 +65,21 @@ export default function board(){
   };
 
   return (
-    <div className="drawable-board">
+    <div>
+      <div>Guess Word</div>
       <canvas
         ref={canvasRef}
         width={800}
-        height={600}
+        height={500}
         className="border border-gray-300 bg-white"
         onMouseDown={startDrawing}
         onMouseMove={draw}
         onMouseUp={stopDrawing}
         onMouseLeave={stopDrawing}
       />
-      <button
-        className="mt-4 px-4 py-2 bg-red-500 text-white rounded"
-        onClick={clearCanvas}
-      >
+      <Button onClick={clearCanvas}>
         Clear Board
-      </button>
+        </Button>
     </div>
   );
 }
