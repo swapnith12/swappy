@@ -20,9 +20,9 @@ model User {
    createdAt DateTime @default(now())
 }
 
-model Scores {
-  id      String  @id @default(cuid()) @map("_id") @db.ObjectId
-  userID  String  @db.ObjectId
-  player  User    @relation(fields: [userID], references: [id])
-  scores  Int
-}
+// model Scores {
+//   id      String  @id @default(cuid()) @map("_id") @db.ObjectId
+//   userID  String  @db.ObjectId
+//   player  User    @relation(fields: [userID], references: [id])
+//   scores  Int
+// }
