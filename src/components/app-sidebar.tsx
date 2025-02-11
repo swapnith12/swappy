@@ -1,4 +1,4 @@
-import { Calendar, Home, Inbox, Search, Settings , User2 , ChevronUp } from "lucide-react"
+import { Calendar, Home, Inbox, Search, Settings, User2, ChevronUp } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -9,39 +9,35 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarFooter,
-} from "@/components/ui/sidebar"
-import {DropdownMenu,DropdownMenuItem,DropdownMenuTrigger,DropdownMenuContent} from '@/components/ui/dropdown-menu'
+} from "@/components/ui/sidebar";
+import { DropdownMenu, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuContent } from "@/components/ui/dropdown-menu";
+import { useSession } from "@/hooks/use-session";
+import { useQueryClient } from "@tanstack/react-query";
+import {logout} from '@/(server)/actions/user/logout'
+import { redirect , useRouter} from "next/navigation";
+import { Router } from "next/router";
 
 // Menu items.
 const items = [
-  {
-    title: "Home",
-    url: "#",
-    icon: Home,
-  },
-  {
-    title: "About",
-    url: "#",
-    icon: Inbox,
-  },
-  {
-    title: "News",
-    url: "#",
-    icon: Calendar,
-  },
-  {
-    title: "How to play",
-    url: "#",
-    icon: Search,
-  },
-  {
-    title: "Settings",
-    url: "#",
-    icon: Settings,
-  },
-]
+  { title: "Home", url: "#", icon: Home },
+  { title: "About", url: "#", icon: Inbox },
+  { title: "News", url: "#", icon: Calendar },
+  { title: "How to play", url: "#", icon: Search },
+  { title: "Settings", url: "#", icon: Settings },
+];
 
 export function AppSidebar() {
+  const { data: session, isLoading } = useSession();
+  const queryClient = useQueryClient();
+  const router = useRouter()
+
+  const handleLogout = async () => {
+      await logout()
+      queryClient.invalidateQueries({ queryKey: ["session"] }); 
+      router.refresh()
+      router.replace('/login')
+  };
+
   return (
     <Sidebar>
       <SidebarContent>
@@ -63,34 +59,42 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
+
       <SidebarFooter>
-      <SidebarMenu>
-            <SidebarMenuItem>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <SidebarMenuButton>
-                    <User2 /> My Profile
-                    <ChevronUp className="ml-auto" />
-                  </SidebarMenuButton>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent
-                  side="top"
-                  className="w-[--radix-popper-anchor-width]"
-                >
-                  <DropdownMenuItem>
-                    <span>Stats</span> 
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <SidebarMenuButton>
+                  <User2 /> My Profile
+                  <ChevronUp className="ml-auto" />
+                </SidebarMenuButton>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent side="top" className="w-[--radix-popper-anchor-width]">
+                {isLoading ? (
+                  <DropdownMenuItem disabled>Loading...</DropdownMenuItem>
+                ) : session ? (
+                  <>
+                    <DropdownMenuItem>
+                      <span>Stats</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem>
+                      <span>Rooms</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={handleLogout} className="text-red-500">
+                      <span>Log out</span>
+                    </DropdownMenuItem>
+                  </>
+                ) : (
+                  <DropdownMenuItem asChild>
+                    <a href="/login">Login</a>
                   </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <span>Rooms</span>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <span>Sign In</span>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </SidebarMenuItem>
-          </SidebarMenu>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </SidebarMenuItem>
+        </SidebarMenu>
       </SidebarFooter>
     </Sidebar>
-  )
+  );
 }

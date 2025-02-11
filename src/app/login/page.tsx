@@ -5,7 +5,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import {SignupWithCreds} from '../../(server)/actions/user/signUp'
+import {LoginWithCreds} from '../../(server)/actions/user/login'
+import Link from 'next/link'
 
 const loginSchema = z.object({
   email: z.string().email("Invalid email format"),
@@ -14,7 +15,7 @@ const loginSchema = z.object({
   .regex(/[\W_]/,"Password must contains atleast one uppercase letter")
 });
 
-export default function SignInPage() {
+export default function LoginPage() {
 
   const router = useRouter();
   const [error, setError] = useState("");
@@ -31,7 +32,7 @@ export default function SignInPage() {
   async function onSubmit(data:any) {
     setError(""); 
     try {
-      const response = await SignupWithCreds({ params: { email: data.email, password: data.password } })
+      const response = await LoginWithCreds({ params: { email: data.email, password: data.password } })
       if(response?.success){router.push("/") }
       else {setError(response?.message)}
     } catch (err) {
@@ -41,7 +42,7 @@ export default function SignInPage() {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen">
-      <h1 className="text-2xl font-semibold mb-4">Sign In</h1>
+      <h1 className="text-2xl font-semibold mb-4">Log In</h1>
 
       {error && <p className="text-red-500">{error}</p>}
 
@@ -67,8 +68,9 @@ export default function SignInPage() {
           className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
           disabled={isSubmitting}
         >
-          {isSubmitting ? "Signing in..." : "Sign In"}
+          {isSubmitting ? "Logging..." : "Log In"}
         </button>
+        <Link href="/signin" className="text-sky-900" >If New user Register here....</Link>
       </form>
     </div>
   );
