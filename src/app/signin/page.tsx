@@ -6,6 +6,7 @@ import * as z from "zod";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import {SignupWithCreds} from '../../(server)/actions/user/signUp'
+import Link from "next/link";
 
 const loginSchema = z.object({
   email: z.string().email("Invalid email format"),
@@ -34,8 +35,8 @@ export default function SignInPage() {
       const response = await SignupWithCreds({ params: { email: data.email, password: data.password } })
       if(response?.success){router.push("/") }
       else {setError(response?.message)}
-    } catch (err) {
-      setError("Invalid credentials");
+    } catch (err:any) {
+      setError(err.message);
     }
   }
 
@@ -70,6 +71,7 @@ export default function SignInPage() {
           {isSubmitting ? "Signing in..." : "Sign In"}
         </button>
       </form>
+      <Link href={"/login"}>Login if already registered</Link>
     </div>
   );
 }
