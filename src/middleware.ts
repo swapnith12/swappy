@@ -5,18 +5,12 @@ import { NextResponse, NextRequest } from "next/server";
 export async function middleware(req: NextRequest) {
   console.log("middleware executing");
   try {
-    const sessionResponse = await fetch(new URL("api/session",req.nextUrl.origin));
-    const session = await sessionResponse.json();
-    console.log(session)
-
-    if (!session) {
+    const sessionToken = req.cookies.get('auth_token')?.value
+    if (sessionToken===undefined){
+      console.log("session not found by middleware")
       return NextResponse.redirect(new URL("/signin", req.nextUrl.origin));
-    } 
-
-    if (!session || session?.expires < new Date().toISOString()) {
-      return NextResponse.redirect(new URL("/login", req.nextUrl.origin));
     }
-
+    console.log("cookie in middleware worked",sessionToken)
     return NextResponse.next();
   } catch (err: any) {
     console.log(err.message)

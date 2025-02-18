@@ -1,28 +1,20 @@
 "use server"
 import { prisma } from "@/lib/prisma";
-import { cookies } from "next/headers";
 
-export async function userFetch() {
+
+export async function userFetch(sessionToken:any) {
   try {
-    const cookieStore = await cookies();
-    const sessionToken = cookieStore.get("auth_token")?.value;
-
-    if (!sessionToken) {
-      console.log("❌ No session token found");
-      return false; 
-    }
-
-    const sessionTokenDB = await prisma.session.findUnique({
-      where: { sessionToken },
+    const sessionTokenDB = await prisma.session.findFirst({
+      where: { sessionToken:sessionToken },
       select: { sessionToken: true, expires: true, user: true }
     });
+    console.log("sessionTokenDB",sessionTokenDB)
 
     if (!sessionTokenDB) {
-      console.log("❌ No session found in database");
-      return false;
+      console.log("sessiontoken in DB undefined")
+      return null;
     }
-
-    console.log("✅ Session found:", sessionTokenDB);
+ 
     return {
       sessionToken: sessionTokenDB.sessionToken,
       expires: sessionTokenDB.expires.toISOString(),
@@ -30,7 +22,7 @@ export async function userFetch() {
     };
 
   } catch (error: any) {
-    console.error("⚠️ Error fetching session:", error);
-    return false; 
+    console.log(error.message)
+    return null; 
   }
 }
