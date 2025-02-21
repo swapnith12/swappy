@@ -1,9 +1,13 @@
 "use server"
 import { prisma } from "@/lib/prisma";
+import { cookies } from "next/headers";
 
 
-export async function userFetch(sessionToken:any) {
+export async function userFetch() {
   try {
+    const cookieStore = await cookies()
+    const sessionToken = cookieStore.get("auth_token")?.value
+    console.log("user fetch triggered",sessionToken)
     const sessionTokenDB = await prisma.session.findFirst({
       where: { sessionToken:sessionToken },
       select: { sessionToken: true, expires: true, user: true }

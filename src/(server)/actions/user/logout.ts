@@ -13,9 +13,11 @@ export async function logout() {
       return;
     }
 
-    await prisma.session.deleteMany({
+    const deleteAction = await prisma.session.deleteMany({
       where: { sessionToken:token },
     });
+
+    console.log(deleteAction)
 
     cookieStore.set("auth_token", "", { expires: new Date(0) });
 

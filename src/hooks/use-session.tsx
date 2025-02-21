@@ -22,7 +22,7 @@ export const useSession = () => {
   return useQuery({
     queryKey: ["session"],
     queryFn: fetchSession,
-    staleTime: 1000 * 60 * 5, 
+    refetchOnWindowFocus:true,
     enabled: isClient,                                
   });
 };

@@ -10,12 +10,16 @@ import {
   SidebarMenuItem,
   SidebarFooter,
 } from "@/components/ui/sidebar";
-import { DropdownMenu, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuContent } from "@/components/ui/dropdown-menu";
+import {
+  DropdownMenu,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+} from "@/components/ui/dropdown-menu";
 import { useSession } from "@/hooks/use-session";
-import { useQueryClient } from "@tanstack/react-query";
-import {logout} from '@/(server)/actions/user/logout'
-import { redirect , useRouter} from "next/navigation";
-import { Router } from "next/router";
+import { useQueryClient, useQuery } from "@tanstack/react-query";
+import { logout } from "@/(server)/actions/user/logout";
+import { useRouter } from "next/navigation";
 
 // Menu items.
 const items = [
@@ -27,15 +31,16 @@ const items = [
 ];
 
 export function AppSidebar() {
-  const { data: session, isLoading } = useSession();
   const queryClient = useQueryClient();
-  const router = useRouter()
+  const router = useRouter();
+
+  const { data: session, isLoading } = useSession()
 
   const handleLogout = async () => {
-      await logout()
-      queryClient.invalidateQueries({ queryKey: ["session"] }); 
-      router.refresh()
-      router.replace('/login')
+    await logout();
+    queryClient.invalidateQueries({ queryKey: ["session"] });
+    router.refresh();
+    router.replace("/login");
   };
 
   return (
