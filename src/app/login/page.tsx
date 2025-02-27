@@ -7,6 +7,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import {LoginWithCreds} from '../../(server)/actions/user/login'
 import Link from 'next/link'
+import { useQueryClient, useQuery } from "@tanstack/react-query";
 
 const loginSchema = z.object({
   email: z.string().email("Invalid email format"),
@@ -16,6 +17,7 @@ const loginSchema = z.object({
 });
 
 export default function LoginPage() {
+  const queryClient = useQueryClient()
 
   const router = useRouter();
   const [error, setError] = useState("");
@@ -33,7 +35,10 @@ export default function LoginPage() {
     setError(""); 
     try {
       const response = await LoginWithCreds({ params: { email: data.email, password: data.password } })
-      if(response?.success){router.push("/") }
+      if(response?.success){
+       await queryClient.invalidateQueries({ queryKey: ["session"] });
+       router.push("/") 
+      }
       else {setError(response?.message)}
     } catch (err) {
       setError("Invalid credentials");

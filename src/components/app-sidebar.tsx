@@ -38,7 +38,7 @@ export function AppSidebar() {
 
   const handleLogout = async () => {
     await logout();
-    queryClient.invalidateQueries({ queryKey: ["session"] });
+    await queryClient.invalidateQueries({ queryKey: ["session"] });
     router.refresh();
     router.replace("/login");
   };
@@ -64,7 +64,6 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
-
       <SidebarFooter>
         <SidebarMenu>
           <SidebarMenuItem>
