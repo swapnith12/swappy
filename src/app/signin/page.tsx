@@ -6,6 +6,7 @@ import * as z from "zod";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import {SignupWithCreds} from '../../(server)/actions/user/signUp'
+import { useQueryClient, useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 
 const loginSchema = z.object({
@@ -16,6 +17,7 @@ const loginSchema = z.object({
 });
 
 export default function SignInPage() {
+  const queryClient = useQueryClient()
 
   const router = useRouter();
   const [error, setError] = useState("");
@@ -33,7 +35,10 @@ export default function SignInPage() {
     setError(""); 
     try {
       const response = await SignupWithCreds({ params: { email: data.email, password: data.password } })
-      if(response?.success){router.push("/") }
+      if(response?.success){
+        await queryClient.invalidateQueries({ queryKey: ["session"] });
+        router.push("/")
+       }
       else {setError(response?.message)}
     } catch (err:any) {
       setError(err.message);
