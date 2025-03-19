@@ -29,7 +29,7 @@ export default function RootLayoutClient({ children }: { children: React.ReactNo
             <SidebarProvider>
               <div className="flex min-h-screen w-screen">
                 <AppSidebar />
-                <main className="flex-1 flex justify-center items-center">
+                <main className="flex-1 flex items-center">
                   {children}
                 </main>
               </div>

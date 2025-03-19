@@ -20,6 +20,7 @@ export async function logout() {
     console.log(deleteAction)
 
     cookieStore.set("auth_token", "", { expires: new Date(0) });
+    cookieStore.delete("auth_token")
 
     console.log("User logged out successfully.");
   } catch (error: any) {
