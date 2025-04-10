@@ -1,6 +1,7 @@
 {
   "name": "swappy",
   "version": "0.1.0",
+  "proxy": "http://localhost:4000",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -34,7 +35,6 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-hook-form": "^7.54.2",
-    "socket.io": "^4.8.1",
     "socket.io-client": "^4.8.1",
     "tailwind-merge": "^2.5.5",
     "tailwindcss-animate": "^1.0.7",

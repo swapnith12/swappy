@@ -23,6 +23,11 @@ model User {
   sessions      Session[]
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt @default(now())
+
+   roomsCreated  Room[]   @relation("RoomCreator")
+  roomsJoined   Player[] // Keeps track of rooms the user has joined
+
+  Room Room[]
 }
 
 model Account {
@@ -51,4 +56,42 @@ model VerificationToken {
   token      String   @unique // Verification token
   expires    DateTime // Expiration time for the token
   createdAt  DateTime @default(now())
+}
+
+model Room {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  code        String   @unique // Unique code to join room
+  createdById String   @db.ObjectId
+  createdBy   User     @relation("RoomCreator", fields: [createdById], references: [id])
+  players     Player[]
+  hostId      String?  @db.ObjectId // The user currently drawing
+  host        User?    @relation(fields: [hostId], references: [id])
+  maxPlayers  Int      @default(4) // Default max players
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt @default(now())
+
+  Score Score[]
+}
+
+model Player {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @db.ObjectId
+  user      User     @relation(fields: [userId], references: [id])
+  roomId    String   @db.ObjectId
+  room      Room     @relation(fields: [roomId], references: [id])
+  score     Int      @default(0) // Score in the game
+  isHost    Boolean  @default(false) // Determines if this player is drawing
+  createdAt DateTime @default(now())
+
+  Score Score[]
+}
+
+model Score {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  playerId  String   @db.ObjectId
+  player    Player   @relation(fields: [playerId], references: [id])
+  roomId    String   @db.ObjectId
+  room      Room     @relation(fields: [roomId], references: [id])
+  points    Int      @default(0) // Score points
+  createdAt DateTime @default(now())
 }

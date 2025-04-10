@@ -1,49 +1,91 @@
 'use client'
+
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Socket , io } from "socket.io-client";
 import { useState } from "react";
+import { userFetch } from "@/(server)/actions/user/userFetch";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
-  const socket = io({path:"/api/socket"})
-  const [roomId , setRoomId] = useState<string>("")
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setError(null);
+    setLoading(true);
+
+    const formData = new FormData(e.currentTarget);
+    const roomID = formData.get("roomID")?.toString().trim();
+    const action = (e.nativeEvent as SubmitEvent).submitter?.id;
+
+    if (!roomID) {
+      setError("Room ID is required");
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const session = await userFetch();
+
+      if (!session || !session.sessionToken || !session.user?.id) {
+        throw new Error("Invalid session or user");
+      }
+
+      const endpoint =
+        action === "create"
+          ? "http://localhost:4000/createRoom"
+          : "http://localhost:4000/joinRoom";
+
+      const res = await fetch(endpoint, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session.sessionToken}`,
+        },
+        body: JSON.stringify({
+          code: roomID,
+          userId: session.user.id,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || "Something went wrong");
+      }
 
 
-  const createRoom = (roomId:string) => {
-    socket.emit("create-room", roomId);
-};
-
-const joinRoom = (roomId:string) => {
-  if (roomId) socket.emit("join-room", roomId);
-};
-
-const handleSubmit=(e:React.FormEvent<HTMLFormElement>)=>{
-  e.preventDefault()
-  const formData = new FormData(e.currentTarget)
-  const newRoomId = Math.random().toString(36).substr(2, 5);
-  setRoomId(formData.get("roomID")?.toString || newRoomId)
-
-  const action = (e.nativeEvent as SubmitEvent ).submitter?.id
-
-  if (action === "create") {
-    createRoom(roomId);
-  } else if (action === "join") {
-    joinRoom(roomId);
-  }
-
-}
-
+      console.log(`${action === "create" ? "Created" : "Joined"} room`, data.room);
+      localStorage.setItem("roomID",data?.room?.id)
+      localStorage.setItem("userID",session.user.id)
+      // toast.success(`${action === "create" ? "Room created" : "Joined room"} successfully`)
+    } catch (err: any) {
+      setError(err.message || "An error occurred");
+      setLoading(false);
+      // toast.error(err.message || "Something went wrong")
+    } finally {
+      router.push("/board");
+    }
+  };
 
   return (
-    <div className="flex flex-col justify-between h-60 w-60">
+    <div className="flex flex-col items-center space-y-4 w-60">
       <Image alt="game logo" src="/rickmorty.jpg" width={300} height={120} />
-      <div className="flex flex-row justify-between">
-        <form onSubmit={handleSubmit}><Input name="roomID" placeholder="Name" required />
-          <Button id="create" type="submit">Create Room</Button>
-          <Button id="join" type="submit">Join Room</Button>
-        </form>
-      </div>
+      <form onSubmit={handleSubmit} className="w-full space-y-2">
+        <Input name="roomID" placeholder="Enter Room Code" required />
+        <div className="flex justify-between">
+          <Button id="create" type="submit" disabled={loading}>
+            {loading ? "Creating..." : "Create Room"}
+          </Button>
+          <Button id="join" type="submit" disabled={loading}>
+            {loading ? "Joining..." : "Join Room"}
+          </Button>
+        </div>
+        {error && <p className="text-red-500 text-sm">{error}</p>}
+      </form>
     </div>
   );
 }
