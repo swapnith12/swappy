@@ -9,7 +9,7 @@ import bcrypt from "bcrypt";
 const saltRounds = 10;
 const myPlaintextPassword = 'swappy';
 
-export async function SignupWithCreds({ params }: { params: { email: string; password: string } }) {
+export async function SignupWithCreds({ params }: { params: { email: string; password: string , username:string } }) {
   try {
     // console.log(params)
     const existingUser = await prisma.user.findUnique({
@@ -25,6 +25,7 @@ export async function SignupWithCreds({ params }: { params: { email: string; pas
 
     const user = await prisma.user.create({
       data: {
+        username:params.username,
         email: params.email,
         password: hashedPassword,
       },

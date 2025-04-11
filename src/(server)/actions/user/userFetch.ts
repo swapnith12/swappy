@@ -8,7 +8,7 @@ export async function userFetch() {
     const cookieStore = await cookies()
     const sessionToken = cookieStore.get("auth_token")?.value
     console.log("user fetch triggered",sessionToken)
-    const sessionTokenDB = await prisma.session.findUniqueOrThrow({
+    const sessionTokenDB = await prisma.session.findUnique({
       where: { sessionToken:sessionToken },
       select: { sessionToken: true, expires: true, user: true }
     });
@@ -22,7 +22,8 @@ export async function userFetch() {
     return {
       sessionToken: sessionTokenDB.sessionToken,
       expires: sessionTokenDB.expires.toISOString(),
-      user: sessionTokenDB.user
+      user: sessionTokenDB.user.id,
+      username:sessionTokenDB.user.username
     };
 
   } catch (error: any) {

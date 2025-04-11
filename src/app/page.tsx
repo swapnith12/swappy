@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { userFetch } from "@/(server)/actions/user/userFetch";
 import { useRouter } from "next/navigation";
-
+import socket from "@/lib/socket";
 export default function Home() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -26,11 +26,10 @@ export default function Home() {
       setLoading(false);
       return;
     }
-
+    const session = await userFetch();
     try {
-      const session = await userFetch();
-
-      if (!session || !session.sessionToken || !session.user?.id) {
+      
+      if (!session || !session.sessionToken || !session.user) {
         throw new Error("Invalid session or user");
       }
 
@@ -47,7 +46,7 @@ export default function Home() {
         },
         body: JSON.stringify({
           code: roomID,
-          userId: session.user.id,
+          userId: session.user,
         }),
       });
 
@@ -59,16 +58,20 @@ export default function Home() {
 
 
       console.log(`${action === "create" ? "Created" : "Joined"} room`, data.room);
-      localStorage.setItem("roomID",data?.room?.id)
-      localStorage.setItem("userID",session.user.id)
+      if (action==='create'){
+        socket.emit("roomCreated", { roomCode: roomID, hostID: session.user });
+        router.push(`/board?roomId=${roomID}&user=${session?.username}`)
+      }
+      else{
+        socket.emit("joinRoom", { roomCode: roomID, userID: session.user });
+        router.push(`/board?roomId=${roomID}&user=${session?.username}`)
+      }
       // toast.success(`${action === "create" ? "Room created" : "Joined room"} successfully`)
     } catch (err: any) {
       setError(err.message || "An error occurred");
       setLoading(false);
       // toast.error(err.message || "Something went wrong")
-    } finally {
-      router.push("/board");
-    }
+    } 
   };
 
   return (

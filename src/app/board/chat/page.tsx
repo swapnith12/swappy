@@ -1,5 +1,6 @@
 'use client';
 
+import { useSearchParams } from 'next/navigation';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -13,47 +14,54 @@ type ChatMessage = {
 };
 
 function Chat() {
-  const obj = useRandomWord();
+  const searchParams = useSearchParams();
+  const roomId = searchParams.get('roomId');
+  const user = searchParams.get('user');
+  const obj = useRandomWord(); 
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    console.log("submit",roomId,user)
     e.preventDefault();
+    if (!roomId || !user) return;
+
     const formData = new FormData(e.currentTarget);
     const guessedWord = formData.get("guessedWord")?.toString().trim();
-    const roomId = localStorage.getItem("roomID");
-    const userID = localStorage.getItem("userID") || "Anonymous";
-
-    if (!guessedWord || !roomId) return;
-
-    // Emit full message structure
+    console.log(guessedWord,"guessedword")
+    if (!guessedWord) return;
+    console.log(roomId,guessedWord)
     socket.emit("chatMessage", {
       roomId,
       message: guessedWord,
-      sender: userID,
+      sender: user,
     });
 
-    // Check for correct guess locally
+    // setMessages(prev => [...prev, { message: guessedWord, sender: userId }]);
+
     if (guessedWord.toLowerCase() === obj?.randomWord) {
       alert("🎉 Correct guess!");
-      obj?.regenerate();
+      obj.regenerate();
     }
 
     e.currentTarget.reset();
   };
 
   useEffect(() => {
-    socket.on("receiveMessage", ({ message, sender }: ChatMessage) => {
+    const handleReceiveMessage = ({ message, sender }: ChatMessage) => {
+      console.log(`recieved message ${message}, sender ${sender}`)
       setMessages(prev => [...prev, { message, sender }]);
 
       setTimeout(() => {
         scrollRef.current?.scrollIntoView({ behavior: "smooth" });
       }, 100);
-    });
+    };
+
+    socket.on("receiveMessage", handleReceiveMessage);
 
     return () => {
-      socket.off("receiveMessage");
+      socket.off("receiveMessage", handleReceiveMessage);
     };
   }, []);
 

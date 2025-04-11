@@ -10,6 +10,7 @@ import { useQueryClient, useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 
 const loginSchema = z.object({
+  username:z.string(),
   email: z.string().email("Invalid email format"),
   password: z.string().min(6, "Password must be at least 6 characters")
   .regex(/[A-Z]/,"Password must contains atleast one uppercase letter")
@@ -18,6 +19,7 @@ const loginSchema = z.object({
 
 export default function SignInPage() {
   const queryClient = useQueryClient()
+  const [loading,setLoading] = useState(false)
 
   const router = useRouter();
   const [error, setError] = useState("");
@@ -32,9 +34,10 @@ export default function SignInPage() {
 
  
   async function onSubmit(data:any) {
-    setError(""); 
+    setError("");
+    setLoading(true) 
     try {
-      const response = await SignupWithCreds({ params: { email: data.email, password: data.password } })
+      const response = await SignupWithCreds({ params: { email: data.email, password: data.password,username:data.username } })
       if(response?.success){
         await queryClient.invalidateQueries({ queryKey: ["session"] });
         router.push("/")
@@ -52,6 +55,13 @@ export default function SignInPage() {
       {error && <p className="text-red-500">{error}</p>}
 
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4 w-80">
+      <input
+          type="username"
+          placeholder="user name"
+          {...register("username")}
+          className="p-2 border rounded"
+        />
+        {errors.username && <p className="text-red-500">{errors.username.message?.toString()}</p>}
         <input
           type="email"
           placeholder="Email"
@@ -73,10 +83,10 @@ export default function SignInPage() {
           className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
           disabled={isSubmitting}
         >
-          {isSubmitting ? "Signing in..." : "Sign In"}
+          {isSubmitting? "Signing in..." : "Sign In"}
         </button>
       </form>
-      <Link href={"/login"}>Login if already registered</Link>
+      <Link className="decoration-lime-950" href={"/login"}>Login if already registered</Link>
     </div>
   );
 }

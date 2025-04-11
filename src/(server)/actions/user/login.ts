@@ -16,7 +16,7 @@ export async function LoginWithCreds({ params }: { params: { email: string; pass
     });
 
     if (!existingUser) {
-      throw new Error("User doesnot already exists");
+      throw new Error("No user exists with this email");
     }
 
 
