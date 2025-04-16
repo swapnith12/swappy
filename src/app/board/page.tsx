@@ -3,16 +3,16 @@ import React, { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { useRandomWord } from "@/hooks/use-randomWord";
 import socket from "@/lib/socket";
+import { useSearchParams } from "next/navigation";
 
 export default function BoardPage() {
+  const searchParams = useSearchParams()
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const ctxRef = useRef<CanvasRenderingContext2D | null>(null);
   const [isDrawing, setIsDrawing] = useState(false);
+  const isHost = searchParams.get("host")
   const obj = useRandomWord();
-
   useEffect(() => {
-    const roomId = localStorage.getItem("roomID")
-    const userID = localStorage.getItem("userID")
     const canvas = canvasRef.current;
     if (!canvas) return;
 
@@ -26,7 +26,6 @@ export default function BoardPage() {
     context.lineCap = "round";
     context.strokeStyle = "black";
     ctxRef.current = context;
-
 
     socket.on("onDraw", ({ x, y }) => {
       if (ctxRef.current) {
@@ -89,18 +88,21 @@ export default function BoardPage() {
 
   return (
     <div>
-      <h1 className="text-xl font-semibold mb-4">
-        Guess Word: {Array.isArray(obj?.randomWord) ? obj.randomWord.join(", ") : obj?.randomWord}
-      </h1>
-      <canvas
+      {isHost ? <h1 className="text-xl font-semibold mb-4">
+        Your Drawing: {Array.isArray(obj?.randomWord) ? obj.randomWord.join(", ") : obj?.randomWord}
+      </h1> : <h1>Guess this word</h1>}
+      {isHost?<canvas
         ref={canvasRef}
         className="border border-gray-300 bg-white"
         onMouseDown={startDrawing}
         onMouseMove={draw}
         onMouseUp={stopDrawing}
         onMouseLeave={stopDrawing}
-      />
-      <Button onClick={handleClear} className="mt-4">Clear Board</Button>
+      /> : <canvas
+         ref={canvasRef}
+        className="border border-gray-300 bg-white"
+      />}
+      {isHost && <Button onClick={handleClear} className="mt-4">Clear Board</Button>}
     </div>
   );
 }

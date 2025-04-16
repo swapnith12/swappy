@@ -60,10 +60,16 @@ export default function Home() {
       console.log(`${action === "create" ? "Created" : "Joined"} room`, data.room);
       if (action==='create'){
         socket.emit("roomCreated", { roomCode: roomID, hostID: session.user });
-        router.push(`/board?roomId=${roomID}&user=${session?.username}`)
+        let host = false
+        socket.on('hostJoined', ({ hostID }) => {
+          host = true 
+        })
+        router.push(`/board?roomId=${roomID}&user=${session?.username}&host=${host}`)
       }
       else{
         socket.emit("joinRoom", { roomCode: roomID, userID: session.user });
+        let host = false 
+        
         router.push(`/board?roomId=${roomID}&user=${session?.username}`)
       }
       // toast.success(`${action === "create" ? "Room created" : "Joined room"} successfully`)
