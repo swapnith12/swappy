@@ -11,6 +11,7 @@ export default function BoardPage() {
   const ctxRef = useRef<CanvasRenderingContext2D | null>(null);
   const [isDrawing, setIsDrawing] = useState(false);
   const isHost = searchParams.get("host")
+  const roomId = searchParams.get("roomId")
   const obj = useRandomWord();
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -62,7 +63,7 @@ export default function BoardPage() {
     ctxRef.current.stroke();
 
     // Emit draw event
-    socket.emit("draw", { x, y });
+    socket.emit("onDraw", { roomId, drawingData: { x, y } });
   };
 
   const stopDrawing = () => {
