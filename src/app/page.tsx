@@ -69,7 +69,6 @@ export default function Home() {
       else{
         socket.emit("joinRoom", { roomCode: roomID, userID: session.user });
         let host = false 
-        
         router.push(`/board?roomId=${roomID}&user=${session?.username}`)
       }
       // toast.success(`${action === "create" ? "Room created" : "Joined room"} successfully`)
@@ -81,20 +80,22 @@ export default function Home() {
   };
 
   return (
+    <div className="w-full h-screen flex justify-center items-center">
     <div className="flex flex-col items-center space-y-4 w-60">
       <Image alt="game logo" src="/rickmorty.jpg" width={300} height={120} />
       <form onSubmit={handleSubmit} className="w-full space-y-2">
-        <Input name="roomID" placeholder="Enter Room Code" required />
+        <Input className="text-white font-bold" name="roomID" placeholder="Enter Room Code" required />
         <div className="flex justify-between">
-          <Button id="create" type="submit" disabled={loading}>
+          <Button className="bg-white text-black font-bold" id="create" type="submit" disabled={loading}>
             {loading ? "Creating..." : "Create Room"}
           </Button>
-          <Button id="join" type="submit" disabled={loading}>
+          <Button className="bg-white text-black font-bold" id="join" type="submit" disabled={loading}>
             {loading ? "Joining..." : "Join Room"}
           </Button>
         </div>
         {error && <p className="text-red-500 text-sm">{error}</p>}
       </form>
+    </div>
     </div>
   );
 }

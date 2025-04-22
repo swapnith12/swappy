@@ -49,8 +49,9 @@ export default function SignInPage() {
   }
 
   return (
+    <div className="w-full h-screen flex justify-center items-center">
     <div className="flex flex-col items-center justify-center min-h-screen">
-      <h1 className="text-2xl font-semibold mb-4">Sign In</h1>
+      <h1 className="text-2xl font-semibold mb-4 text-white">Sign In</h1>
 
       {error && <p className="text-red-500">{error}</p>}
 
@@ -66,7 +67,7 @@ export default function SignInPage() {
           type="email"
           placeholder="Email"
           {...register("email")}
-          className="p-2 border rounded"
+          className="p-2 border rounded "
         />
         {errors.email && <p className="text-red-500">{errors.email.message?.toString()}</p>}
 
@@ -74,7 +75,7 @@ export default function SignInPage() {
           type="password"
           placeholder="Password"
           {...register("password")}
-          className="p-2 border rounded"
+          className="p-2 border rounded "
         />
         {errors.password && <p className="text-red-500">{errors.password.message?.toString()}</p>}
 
@@ -86,7 +87,8 @@ export default function SignInPage() {
           {isSubmitting? "Signing in..." : "Sign In"}
         </button>
       </form>
-      <Link className="decoration-lime-950" href={"/login"}>Login if already registered</Link>
+      <Link className="decoration-lime-950 text-white" href={"/login"}>click here to Login if already registered</Link>
+    </div>
     </div>
   );
 }

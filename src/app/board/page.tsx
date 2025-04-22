@@ -1,9 +1,9 @@
 'use client'
 import React, { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { useRandomWord } from "@/hooks/use-randomWord";
 import socket from "@/lib/socket";
 import { useSearchParams } from "next/navigation";
+import Chat from "./chat/page";
 
 export default function BoardPage() {
   const searchParams = useSearchParams()
@@ -12,7 +12,7 @@ export default function BoardPage() {
   const [isDrawing, setIsDrawing] = useState(false);
   const isHost = searchParams.get("host")
   const roomId = searchParams.get("roomId")
-  const obj = useRandomWord();
+  const [wordToDraw, setWordToDraw] = useState('Word to be drawn loading...')
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -34,6 +34,11 @@ export default function BoardPage() {
         ctxRef.current.stroke();
       }
     });
+
+    socket.on('guessWord', (word) => {
+      console.log('word to be guessed', word)
+      setWordToDraw(word)
+    })
 
     // When another player clears the canvas
     socket.on("clearBoard", () => {
@@ -88,22 +93,26 @@ export default function BoardPage() {
   };
 
   return (
-    <div>
-      {isHost ? <h1 className="text-xl font-semibold mb-4">
-        Your Drawing: {Array.isArray(obj?.randomWord) ? obj.randomWord.join(", ") : obj?.randomWord}
-      </h1> : <h1>Guess this word</h1>}
-      {isHost?<canvas
-        ref={canvasRef}
-        className="border border-gray-300 bg-white"
-        onMouseDown={startDrawing}
-        onMouseMove={draw}
-        onMouseUp={stopDrawing}
-        onMouseLeave={stopDrawing}
-      /> : <canvas
-         ref={canvasRef}
-        className="border border-gray-300 bg-white"
-      />}
-      {isHost && <Button onClick={handleClear} className="mt-4">Clear Board</Button>}
+    <div className="flex flex-row justify-between items-center">
+      <div className="flex flex-col m-auto">
+        {isHost ? 
+         <h1 className="text-white font-bold">`{wordToDraw} is your word to draw`</h1>
+        : 
+        <h1 className="text-white font-bold">Guess this word</h1>}
+        {isHost ? <canvas
+          ref={canvasRef}
+          className="border border-gray-300 bg-white"
+          onMouseDown={startDrawing}
+          onMouseMove={draw}
+          onMouseUp={stopDrawing}
+          onMouseLeave={stopDrawing}
+        /> : <canvas
+          ref={canvasRef}
+          className="border border-gray-300 bg-white"
+        />}
+        {isHost && <Button onClick={handleClear} className="mt-4 bg-sky-900 font-bold">Clear Board</Button>}
+      </div>
+      <Chat guessWord={wordToDraw} />
     </div>
   );
 }

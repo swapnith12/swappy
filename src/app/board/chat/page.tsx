@@ -5,7 +5,6 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import React, { useEffect, useRef, useState } from "react";
-import { useRandomWord } from "@/hooks/use-randomWord";
 import socket from "@/lib/socket";
 
 type ChatMessage = {
@@ -13,11 +12,10 @@ type ChatMessage = {
   sender: string;
 };
 
-function Chat() {
+function Chat({guessWord}:{guessWord:string}) {
   const searchParams = useSearchParams();
   const roomId = searchParams.get('roomId');
   const user = searchParams.get('user');
-  const obj = useRandomWord(); 
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -40,9 +38,9 @@ function Chat() {
 
     // setMessages(prev => [...prev, { message: guessedWord, sender: userId }]);
 
-    if (guessedWord.toLowerCase() === obj?.randomWord) {
+    if (guessedWord.toLowerCase() === guessWord) {
       alert("🎉 Correct guess!");
-      obj.regenerate();
+      
     }
 
     e.currentTarget.reset();
@@ -54,7 +52,7 @@ function Chat() {
       setMessages(prev => [...prev, { message, sender }]);
 
       setTimeout(() => {
-        scrollRef.current?.scrollIntoView({ behavior: "smooth" });
+        scrollRef.current?.scrollIntoView({ behavior: "smooth"  });
       }, 100);
     };
 
@@ -66,10 +64,10 @@ function Chat() {
   }, []);
 
   return (
-    <div className="border-8 border-teal-900 h-screen min-w-40 max-w-3xs rounded-md p-1 flex flex-col">
+    <div className="border-8 border-sky-900 h-screen min-w-40 max-w-3xs rounded-md p-1 flex flex-col">
       <ScrollArea className="flex-grow space-y-2 p-2">
         {messages.map((msg, i) => (
-          <div key={i} className="text-sm bg-white px-2 py-1 rounded-md shadow">
+          <div key={i} className="text-sm font-bold bg-white px-2 py-1 rounded-md shadow">
             <strong>{msg.sender}:</strong> {msg.message}
           </div>
         ))}

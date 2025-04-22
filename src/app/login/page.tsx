@@ -46,8 +46,9 @@ export default function LoginPage() {
   }
 
   return (
+    <div className="w-full h-screen flex justify-center items-center">
     <div className="flex flex-col items-center justify-center min-h-screen">
-      <h1 className="text-2xl font-semibold mb-4">Log In</h1>
+      <h1 className="text-2xl font-semibold mb-4 text-white">Log In</h1>
 
       {error && <p className="text-red-500">{error}</p>}
 
@@ -75,8 +76,9 @@ export default function LoginPage() {
         >
           {isSubmitting ? "Logging..." : "Log In"}
         </button>
-        <Link href="/signin" className="text-sky-900" >If New user Register here....</Link>
+        <Link href="/signin" className="text-white" >If New user click here to register....</Link>
       </form>
+    </div>
     </div>
   );
 }

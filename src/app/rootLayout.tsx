@@ -27,8 +27,8 @@ export default function RootLayoutClient({ children }: { children: React.ReactNo
         <QueryClientProvider client={queryClient}>
           <HydrationBoundary state={dehydrate(queryClient)}>
             <SidebarProvider>
-              <div className="flex min-h-screen w-screen">
-                <AppSidebar />
+              <div className="flex min-h-screen w-screen bg-gradient-to-b from-blue-900 to-black via-[95%] to-white">
+                <AppSidebar/>
                 <main className="flex-1 flex items-center">
                   {children}
                 </main>
